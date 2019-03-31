@@ -10,7 +10,11 @@ This lab will walk you through connecting to the instance and configuring securi
 
 To generate AWS API credentials, go to the IAM dashboard in the AWS console.
 
-![alt text] (https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image1.png "test")
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image1.png "test")
+
+Inline-style: 
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+
 
 This is new! To create a group, select "groups" and then click the "Create a new group" button
 
