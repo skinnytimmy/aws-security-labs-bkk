@@ -56,6 +56,11 @@ Your new user and group have now been created, and your user is now a member of 
 
 
 
+
+
+
+
+
 # Managing IAM User Permissions and Credentials
 
 Now that you have created your first IAM user and group, lets take a look at the IAM user properties.  Click on the **Users** option in the left-hand menu, then select the ExampleUser account that you just created: 
@@ -77,6 +82,12 @@ From here you can also Create, Rotate, or Revoke a user’s API Access Keys (for
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image2-4.png "View API Access Key Details")
 
 
+
+
+
+
+
+
 # IAM Roles for EC2
 
 Applications or Command Line Tools running on Amazon Elastic Compute Cloud (Amazon EC2) instances that make requests to Amazon Web Services (AWS) must sign all AWS API requests with AWS access keys. AWS Identity and Access Management (IAM) Roles for EC2 instances, is a feature that makes it easier for your applications and command line tools to securely access AWS service APIs from EC2 instances. An IAM role with a set of permissions can be created and attached to an EC2 instance on launch.  AWS access keys with the specified permissions will then be automatically made available on EC2 instances that have been launched with an IAM role. IAM roles for EC2 instances manages the muck of securely distributing and rotating your AWS access keys out to your EC2 instances so that you don’t have to.
@@ -89,6 +100,43 @@ Using IAM roles for instances, you can securely distribute AWS access keys to in
 * You can include an IAM role when you launch On-Demand, Spot, or Reserved Instances.
 * IAM roles can be used with all Windows and Linux AMIs. 
 
+
+
 To create an IAM Role for EC2, click on the **Roles** link on the left-hand menu and click **Create New Role**:
 
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image3-1.png "Create a new role")
+
+
+Create a new role called **SecureAccessS3** and click **Next Step**: 
+
+
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image3-2.png "Name the role SecureAccessS3")
+
+
+IAM supports several different types of Roles – select the **Amazon EC2** Service Role for this example, but IAM roles can be used to grant access to AWS Services, other AWS Accounts, and 3rd Party Identity Providers:
+
+
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image3-3.png "Select Amazon EC2")
+
+
+We now need to set permissions for this new role.  Type **s3** then select **AmazonS3ReadOnly** and click **Next Step**
+
+
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image3-4.png )
+
+
+You now have the opportunity to review the role information. When you are ready, click **Create Role**:
+
+
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image3-5.png )
+
+
+You can now use the newly created IAM Role when you launch an EC2 instance.   For example, in the EC2 Console, you can select the role as part of launch process.  Once the instance is launched, applications and tools that access AWS services will automatically pick up temporary credentials made available to the instance by the infrastructure.  
+
+
+
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image3-6.png )
+
+
+Congratulations!  You have created your first IAM user, group, and role!
 
