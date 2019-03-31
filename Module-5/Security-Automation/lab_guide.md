@@ -15,7 +15,11 @@ Please note that these labs are designed to show the capabilities of automation 
 
 ## Check if CloudTrail has a Configured Trail
 
+
+
 **Note:** In order for this lab to complete successfully, you should ensure that you continue to use the region in which you have previously created and configured trails. 
+
+
 
 To check if you have created a previous trail:
 
@@ -28,32 +32,47 @@ To check if you have created a previous trail:
 
 ## Create a CloudTrail Trail [if You Have Not Prevuously]
 
-If you have not created a trail previously, please create one as follows:
+If you have not created a trail previously, please create one as follows (use US-EAST-1 for simplicity):
+
+
 
 
 * Sign in to the console and open **AWS CloudTrail**
 * Click on **Trails** in the left hand pane.
 
+
+
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-1.png )
+
+
 
 * Click on **Create Trail** to enter the trail creation page:
 
+
+
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-2.png )
+
+
 
 * Give your trail a name and ensure that all management events are recorded across all regions:
 
+
+
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-3.png )
+
+
 
 For storage location, set the following:
 
 1. Create a new S3 bucket with a unique name. 
-2. Encrypt the log files with SSE-KMS.
-3. Create a new KMS key.
-4. Enter a unique name for your KMS key.
-5. Enable log file validation.
-6. Turn off SNS notification.
+2. Enable log file validation.
+3. Turn off SNS notification.
 
-When this is completed, you can select create.
+
+
+When this is completed, you can select **create**.
+
+
 
 
 
@@ -269,7 +288,7 @@ def lambda_handler(event, context):
  Configure the environment variables as follows: 
 
  * Key: **SNSARN**
- * Value: **<Enter the SNSARN from the topic that you created earlier>**
+ * Value: **Enter the SNSARN from the topic that you created earlier**
 
  Save the function by selecting **SAVE** at the top of the page.
 
