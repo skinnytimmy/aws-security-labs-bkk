@@ -56,17 +56,17 @@ Your new user and group have now been created, and your user is a member of your
 
 # Managing IAM User Permissions and Credentials
 
-Now that you have created your first IAM user and group, lets take a look at the IAM user properties.  Click on the *Users* option in the left-hand menu, then select the ExampleUser account that you just created: 
+Now that you have created your first IAM user and group, lets take a look at the IAM user properties.  Click on the **Users** option in the left-hand menu, then select the ExampleUser account that you just created: 
 
 Notice the user is a member of the Power_Users group that you added them to.
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image2-1.png "Confirm group membership")
 
-Now select the *Permissions* tab to see the individual User and Group Policies that will be applied to this account. Note that this user only has the PowerUserAccess group policy applied to the account:
+Now select the **Permissions** tab to see the individual User and Group Policies that will be applied to this account. Note that this user only has the PowerUserAccess group policy applied to the account:
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image2-2.png "View user permissions")
 
-Now select *Security Credentials*. This is where you can assign or change a User’s Console Password and Multi-Factor Authentication device:
+Now select **Security Credentials**. This is where you can assign or change a User’s Console Password and Multi-Factor Authentication device:
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image2-3.png "View security credentials")
 
@@ -87,6 +87,6 @@ Using IAM roles for instances, you can securely distribute AWS access keys to in
 * You can include an IAM role when you launch On-Demand, Spot, or Reserved Instances.
 * IAM roles can be used with all Windows and Linux AMIs. 
 
-To create an IAM Role for EC2, click on the *Roles* link on the left-hand menu and click *Create New Role*:
+To create an IAM Role for EC2, click on the **Roles** link on the left-hand menu and click **Create New Role**:
 
 
