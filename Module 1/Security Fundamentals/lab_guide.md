@@ -12,6 +12,6 @@ To generate AWS API credentials, go to the IAM dashboard in the AWS console.
 
 <this is the first pic>
 
-To create a group, select "groups" and then click the "Create a new group" button
+This is new! To create a group, select "groups" and then click the "Create a new group" button
 
 <second pic>
