@@ -34,15 +34,15 @@ If you have not created a trail previously, please create one as follows:
 * Sign in to the console and open **AWS CloudTrail**
 * Click on **Trails** in the left hand pane.
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-1.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-1.png )
 
 * Click on **Create Trail** to enter the trail creation page:
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-2.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-2.png )
 
 * Give your trail a name and ensure that all management events are recorded across all regions:
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-3.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-3.png )
 
 For storage location, set the following:
 
@@ -61,33 +61,33 @@ When this is completed, you can select create.
 
 From the management console, open the SNS console.
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-5.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-5.png )
 
 
 From the SNS console, create a topic called **CLoudTrailNotify** and click **Next Step**
 
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-6.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-6.png )
 
 For brevity in the lab, click **Create topic**
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-7.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-7.png )
 
 Note down the ARN details for later in the lab.
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-8.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-8.png )
 
 
 Now click on **Create Subscription** and select **Email** as the protocol. Add your email address as an endpoint and select **Create Subscription**
 
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-9.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-9.png )
 
 
 You will now receive a subscription email which you will need to acknowledge. When the confirmation is completed, the status will change within the console.
 
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-10.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-10.png )
 
 
 ## Create an IAM Policy for Lambda to turn on CloudTrail
@@ -149,7 +149,7 @@ Finally select **Review Policy**
 * Give it a meaningful description.
 * Select **Create Policy**
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-11.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-11.png )
 
 
 ## Create an IAM Role for Your Lambda Function
@@ -157,7 +157,7 @@ Finally select **Review Policy**
 * Select Lambda from the Management Console.
 * From the dashboard, select **Create a function**
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-12.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-12.png )
 
 * Select **Author from scratch**.
 * Under **Basic Information** give the function the name **CloudTrailAutoResponder**
@@ -166,7 +166,7 @@ Finally select **Review Policy**
 * Click on **Create Function**
 
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-13.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-13.png )
 
 * Paste the following code into the function window:
 
@@ -274,7 +274,7 @@ def lambda_handler(event, context):
  Save the function by selecting **SAVE** at the top of the page.
 
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Automation/images/image5-1-14.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/images/image5-1-14.png )
 
 
 ## Create and Configure a Cloudwatch Event to Detect the Event and Trigger Remediation
