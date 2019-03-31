@@ -13,28 +13,28 @@ To generate AWS API credentials, go to the IAM dashboard in the AWS console.
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image1.png "Select IAM from the console")
 
 
-To create a group select "groups" then click the "Create a New Group" button.
+To create a group select **groups** then click the **Create a New Group** button.
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image2.png "Select Groups")
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image3.png "Create a New Group")
 
-Type Power_Users into the Group Name text box and click Next Step.
+Type **Power_Users** into the Group Name text box and click Next Step.
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image4.png "Enter Power_Users group name")
 
-Type Power in the filtering text box and then selext PowerUserAccess. Click Next Step.
+Type **Power** in the filtering text box and then selext **PowerUserAccess**. Click **Next Step**:
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image5.png "Select PowerUserAccess From Filter")
 
-This associate the “Power User” IAM policy to your new group and will allow group members to perform any AWS action except perform IAM management. Click Create Group:
+This associate the **Power User** IAM policy to your new group and will allow group members to perform any AWS action except perform IAM management. Click **Create Group**:
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image6.png "Select Create Group")
 
-To create a user, select “Users” then click the “Create a New Users” button.
+To create a user, select **Users** then click the **Create a New Users** button.
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image7.png "Select Create New Users")
 
-Enter ExampleUser in the first text box under Enter User Names: Unselect the check box next to Generate an access key for each user and click Create.
+Enter **ExampleUser** in the first text box under "Enter User Names:" Unselect the check box next to "Generate an access key" for each user and click **Create**.
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image8.png "Enter ExampleUser")
 
@@ -44,15 +44,17 @@ Now click to Download Credentials:
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image9.png "Download Credentials")
 
-To add the user to the group, select ExampleUser then click on User Actions and select the Add User to Groups menu option:
+To add the user to the group, select **ExampleUser** then click on **User Actions** and select the "Add User to Groups" menu option:
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image10.png "Add User To Groups")
 
-Select the Power_Users group the click Add to Groups:
+Select the **Power_Users** group the click "Add to Groups":
 
 ![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-1/Security-Fundamentals/images/image11.png "Add Power_Users Group To Groups")
 
-Your new user and group have now been created, and your user is a member of your group. 
+Your new user and group have now been created, and your user is now a member of your group. 
+
+
 
 # Managing IAM User Permissions and Credentials
 
