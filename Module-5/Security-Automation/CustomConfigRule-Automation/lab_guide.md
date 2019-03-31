@@ -7,22 +7,25 @@ This could potentially be used to ensure that a production web server security g
 
 ## Part 1: Create a security group with inbound rules only for HTTP and HTTPS.
 
-* Open the management console, and go to the VPC console.
-* In the navigation pane, choose **Security Groups**.
-* Select **Create Security Group**
-* Provide the name as **WebServerSGDemo** and give an appropriate description.
-* Now select the security group and update the **Inbound** rules. The details pane displays the details for the security group, plus tabs for working with its inboud rules and outbound rules.
-* On the **Inbound Rules** tab, choose **Edit**. Select an option for a rule for inbound traffic and create rules with the below details:
+1.1. Open the management console, and go to the VPC console.
 
-From **Type** choose **HTTP** and specify a value for **Source** as **0.0.0.0/0**
-From **Type** choose **HTTPS** and specify a value for **Source** as **0.0.0.0/0**
+1.3. Select **Create Security Group**
+
+1.4. Provide the name as **WebServerSGDemo** and give an appropriate description.
+
+1.5. Now select the security group and update the **Inbound** rules. The details pane displays the details for the security group, plus tabs for working with its inboud rules and outbound rules.
+
+1.6. On the **Inbound Rules** tab, choose **Edit**. Select an option for a rule for inbound traffic and create rules with the below details:
+
+* From **Type** choose **HTTP** and specify a value for **Source** as **0.0.0.0/0**
+* From **Type** choose **HTTPS** and specify a value for **Source** as **0.0.0.0/0**
 
 **Note:**  !!Make note of the security group ID as you will need it later on!!
 
 
 
 
-##Part 2: Create an IAM Policy for a Lambda Function to Remediate the Security Group
+## Part 2: Create an IAM Policy for a Lambda Function to Remediate the Security Group
 
 2.1. From the AWS console, select IAM.
 
