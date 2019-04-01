@@ -173,6 +173,24 @@ Finally select **Review Policy**
 
 ## Create an IAM Role for Your Lambda Function
 
+1 - On AWS IAM console, select **Role** from left panel
+
+2 - Select **Create Role**
+
+3 - Select **Lambda** from the list of services that will use this role and then select **Next: Permission**
+
+4 - In search box provide policy name we created previously - **cloudtrail-remediation-lambda**
+
+4 - Select the check box next to the policy you created previously **cloudtrail-remediation-lambda** and then select **Next: Review**
+
+5 - Name your role **CloudTrailRemediationLambdaRole**  and provide a description.
+
+6 - Select **Create Role**
+
+
+
+## Create The Lambda Function
+
 * Select Lambda from the Management Console.
 * From the dashboard, select **Create a function**
 
