@@ -5,317 +5,239 @@ We will be using this lab to create custom rules within AWS config. These rules 
 This could potentially be used to ensure that a production web server security group should always have **Inbound** rules only for HTTP and HTTPS. If there is any change in the security group, the rule will be used to revert back to the original rules (i.e. Inbound only traffic permissible for HTTP and HTTPS).
 
 
-## Part 1: Create a security group with inbound rules only for HTTP and HTTPS.
+## Part 1: Create a security group unrestricted SSH.
 
-1.1. Open the management console, and go to the VPC console.
+1.1. From the AWS Console, go to the VPC console.
+1.2. Create a security group with SSH access which is open to anywhere.
 
-1.3. Select **Create Security Group**
 
-1.4. Provide the name as **WebServerSGDemo** and give an appropriate description.
+We will be simulating Config Rule checks on the following environment:
 
-1.5. Now select the security group and update the **Inbound** rules. The details pane displays the details for the security group, plus tabs for working with its inboud rules and outbound rules.
-
-1.6. On the **Inbound Rules** tab, choose **Edit**. Select an option for a rule for inbound traffic and create rules with the below details:
-
-* From **Type** choose **HTTP** and specify a value for **Source** as **0.0.0.0/0**
-* From **Type** choose **HTTPS** and specify a value for **Source** as **0.0.0.0/0**
-
-**Note:**  !!Make note of the security group ID as you will need it later on!!
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/CustomConfigRule-Automation/images/image1-1.png )
 
 
 
+## Part 2: Create an IAM Role For Config To Work With.
 
-## Part 2: Create an IAM Policy for a Lambda Function to Remediate the Security Group
+2.1. From IAM, create a Role called **MyConfigRole**. 
 
-2.1. From the AWS console, select IAM.
+2.2. From the service selection menu, select **Config**.
 
-2.2. Select **Policy** from the left panel.
+2.3. Attach the following policies:
 
-2.3. Select **JSON** from the tab and paste the following policy into the window:
+* AWSConfigRole
+* AWSLambdaExecute
+* AWSConfigRulesExecuteRole
+* Add the following inline policy:
 
 ```
 {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Effect": "Allow",
             "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
+                "sns:Publish",
+                "s3:GetBucketAcl",
+                "s3:PutObject*"
             ],
-            "Resource": "arn:aws:logs:*:*:*"
-        },
+            "Resource": "*",
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
+## Part 3: Set up the recorder
+
+3.1. Go through and set up the recorder, according to the defaults.
+3.2. Ensure that the role that you created in (1) is included at the bottom of the page.
+
+
+## Part 4: Add the unrestricted SSH rule within AWS Config
+
+## Part 5: Create an SNS Topic 
+
+5.1 Call the topic **ConfigTopic**.
+5.2 Subscribe your email address and acknowledge when the confirmation mail arrives.
+
+
+## Part 6: Create a Lambda Role
+
+6.1. From the AWS management console, go to IAM.
+6.2. Create a role, and choose Lambda as the service to use the role.
+6.3. Create a lambda role called **MyLambdaRole** and add the following inline policy:
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
         {
-            "Effect": "Allow",
             "Action": [
-                "config:PutEvaluations",
-                "ec2:DescribeSecurityGroups",
+                "config:GetComplianceDetailsByConfigRule",
                 "ec2:AuthorizeSecurityGroupIngress",
-                "ec2:RevokeSecurityGroupIngress"
+                "ec2:DescribeSecurityGroups",
+                "ec2:RevokeSecurityGroupIngress",
+                "s3:GetBucketAcl",
+                "s3:PutBucketAcl",
+                "sns:Publish"
             ],
-            "Resource": "*"
+            "Resource": "*",
+            "Effect": "Allow"
         }
     ]
 }
 
 ```
 
-2.4. Click **Review Policy**
-
-2.5. Provide the policy name as **WebSGMonitorLambdaPolicy**
-
-2.6. Click **Create Policy**
 
 
 
+## Part 7: Create a Lambda Function for AutoRemediation
 
+7.1 Go to the Lambda console and create a function which we will call remediate-sg.
 
-## Part 3 - Create an IAM Role for your Lambda Function
+7.2 Use the following parameters:
 
+* Use Python 3.6 as a runtime
+* Select the Lambda Role **LambdaConfigRole** which you created earlier.
 
-
-
-
-3.1. From the IAM console, select **Role** from the left hand panel.
-
-3.2. Select **Create Role**
-
-3.3. Select **Lambda** from the list of services that will use this rile and then select **Next : Permission**
-
-3.4. In the search box, enter the policy name which we created previously - **WebSGMonitorLambdaPolicy** and then select **Next: Review**
-
-3.5. Name your role **WebSGRemediationLambdaRole** and provide a description.
-
-3.5. Select **Create Role**
-
-
-
-
-
-## Part 4 - Creating the Lambda Function
-
-4.1. In the AWS management console, select **Lambda** to go to the Lambda console.
-
-4.2. From the dashboard, select **Create Function**.
-
-4.3. On the create function page, choose **Author From Scratch**
-
-4.4. Provide a name for the function. For this exercise, we will call the lambda function **WebSGAutoResponder**
-
-4.5. In the runtime, select **Python 2.7**
-
-4.6. Under role, select **Choose An Existing Role**, and select the role that we created previously - **WebSGRemediationLambdaRole** and then select **Create function**
-
-4.7. On the function **configuration** page, scroll down to **Basic Settings** and change **Timeout** value to 15 seconds.
-
-4.8. Scroll up to the **designer** section and select the name of your lambda function and delete the default code and paste the following code in its place:
+When you are ready, add the following code:
 
 ```
 
-#
-# This file made available under CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-#
-# This code is only intended for instructional purposes and should not be used for any other use.
+"""
+Lambda function to poll Config for noncompliant resources, and automatically
+apply remediation by replacing the 0.0.0.0/0 22/tcp inbound rule with
+10.10.0.0/16 22/tcp. Notifications are sent to an SNS topic.
+"""
 
 import boto3
-import botocore
-import json
 
- 
-APPLICABLE_RESOURCES = ["AWS::EC2::SecurityGroup"]
+# AWS Config settings
+ACCOUNT_ID = boto3.client('sts').get_caller_identity()['Account']
+CONFIG_CLIENT = boto3.client('config')
+MY_RULE = "restricted-ssh"
 
-# Specify the required ingress permissions using the same key layout as that provided in the
-# describe_security_group API response and authorize_security_group_ingress/egress API calls.
+# EC2 Settings
+EC2_CLIENT = boto3.client('ec2')
 
-REQUIRED_PERMISSIONS = [
-{
-    "IpProtocol" : "tcp",
-    "FromPort" : 80,
-    "ToPort" : 80,
-    "UserIdGroupPairs" : [],
-    "IpRanges" : [{"CidrIp" : "0.0.0.0/0"}],
-    "PrefixListIds" : [],
-    "Ipv6Ranges": []
-},
-{
-    "IpProtocol" : "tcp",
-    "FromPort" : 443,
-    "ToPort" : 443,
-    "UserIdGroupPairs" : [],
-    "IpRanges" : [{"CidrIp" : "0.0.0.0/0"}],
-    "PrefixListIds" : [],
-    "Ipv6Ranges": []
-}]
+# AWS SNS Settings
+SNS_CLIENT = boto3.client('sns')
+SNS_TOPIC = 'arn:aws:sns:us-east-1:' + ACCOUNT_ID + ':' + 'mytopic'
+SNS_SUBJECT = 'Compliance Update'
 
-# normalize_parameters
-#
-# Normalize all rule parameters so we can handle them consistently.
-# All keys are stored in lower case.  Only boolean and numeric keys are stored.
-
-def normalize_parameters(rule_parameters):
-    for key, value in rule_parameters.iteritems():
-        normalized_key=key.lower()
-        normalized_value=value.lower()
-
-        if normalized_value == "true":
-            rule_parameters[normalized_key] = True
-        elif normalized_value == "false":
-            rule_parameters[normalized_key] = False
-        elif normalized_value.isdigit():
-            rule_parameters[normalized_key] = int(normalized_value)
-        else:
-            rule_parameters[normalized_key] = True
-    return rule_parameters
-
-# evaluate_compliance
-#
-# This is the main compliance evaluation function.
-#
-# Arguments:
-#
-# configuration_item - the configuration item obtained from the AWS Config event
-# debug_enabled - debug flag
-#
-# return values:
-#
-# compliance_type -
-#
-#     NOT_APPLICABLE - (1) something other than a security group is being evaluated
-#                      (2) the configuration item is being deleted
-#     NON_COMPLIANT  - the rules do not match the required rules and we couldn't
-#                      fix them
-#     COMPLIANT      - the rules match the required rules or we were able to fix
-#                      them
-#
-# annotation         - the annotation message for AWS Config
-
-def evaluate_compliance(configuration_item, debug_enabled):
-    if configuration_item["resourceType"] not in APPLICABLE_RESOURCES:
-        return {
-            "compliance_type" : "NOT_APPLICABLE",
-            "annotation" : "The rule doesn't apply to resources of type " +
-            configuration_item["resourceType"] + "."
-        }
-
-    if configuration_item["configurationItemStatus"] == "ResourceDeleted":
-        return {
-            "compliance_type": "NOT_APPLICABLE",
-            "annotation": "The configurationItem was deleted and therefore cannot be validated."
-        }
-
-    group_id = configuration_item["configuration"]["groupId"]
-    client = boto3.client("ec2");
-
-    # Call describe_security_groups because the IpPermissions that are returned
-    # are in a format that can be used as the basis for input to
-    # authorize_security_group_ingress and revoke_security_group_ingress.
-
-    try:
-        response = client.describe_security_groups(GroupIds=[group_id])
-    except botocore.exceptions.ClientError as e:
-        return {
-            "compliance_type" : "NON_COMPLIANT",
-            "annotation" : "describe_security_groups failure on group " + group_id
-        }
-        
-    if debug_enabled:
-        print("security group definition: ", json.dumps(response, indent=2))
-
-    ip_permissions = response["SecurityGroups"][0]["IpPermissions"]
-    authorize_permissions = [item for item in REQUIRED_PERMISSIONS if item not in ip_permissions]
-    revoke_permissions = [item for item in ip_permissions if item not in REQUIRED_PERMISSIONS]
-
-    if authorize_permissions or revoke_permissions:
-        annotation_message = "Permissions were modified."
-    else:
-        annotation_message = "Permissions are correct."
-
-    if authorize_permissions:
-        if debug_enabled:
-            print("authorizing for ", group_id, ", ip_permissions ", json.dumps(authorize_permissions, indent=2))
-
-        try:
-            client.authorize_security_group_ingress(GroupId=group_id, IpPermissions=authorize_permissions)
-            annotation_message += " " + str(len(authorize_permissions)) +" new authorization(s)."
-        except botocore.exceptions.ClientError as e:
-            return {
-                "compliance_type" : "NON_COMPLIANT",
-                "annotation" : "authorize_security_group_ingress failure on group " + group_id
-            }
-
-    if revoke_permissions:
-        if debug_enabled:
-            print("revoking for ", group_id, ", ip_permissions ", json.dumps(revoke_permissions, indent=2))
-
-        try:
-            client.revoke_security_group_ingress(GroupId=group_id, IpPermissions=revoke_permissions)
-            annotation_message += " " + str(len(revoke_permissions)) +" new revocation(s)."
-        except botocore.exceptions.ClientError as e:
-            return {
-                "compliance_type" : "NON_COMPLIANT",
-                "annotation" : "revoke_security_group_ingress failure on group " + group_id
-            }
-
-    return {
-        "compliance_type": "COMPLIANT",
-        "annotation": annotation_message
-    }
-
-# lambda_handler
-#
-# This is the main handle for the Lambda function.  AWS Lambda passes the function an event and a context.
-# If "debug" is specified as a rule parameter, then debugging is enabled.
 
 def lambda_handler(event, context):
-    invoking_event = json.loads(event['invokingEvent'])
-    configuration_item = invoking_event["configurationItem"]
-    rule_parameters = normalize_parameters(json.loads(event["ruleParameters"]))
+    """Entry point"""
 
-    debug_enabled = False
+    # Get compliance details
+    non_compliant_detail = CONFIG_CLIENT.get_compliance_details_by_config_rule(
+        ConfigRuleName=MY_RULE, ComplianceTypes=['NON_COMPLIANT'])
 
-    if "debug" in rule_parameters:
-        debug_enabled = rule_parameters["debug"]
+    if len(non_compliant_detail['EvaluationResults']) > 0:
+        print(
+            'The following resource(s) are not compliant with AWS Config rule: '
+            + MY_RULE)
+        non_complaint_resources = ''
+        for result in non_compliant_detail['EvaluationResults']:
+            print(result['EvaluationResultIdentifier']
+                  ['EvaluationResultQualifier']['ResourceId'])
+            non_complaint_resources = non_complaint_resources + \
+                result['EvaluationResultIdentifier']['EvaluationResultQualifier']['ResourceId'] + '\n'
 
-    if debug_enabled:
-        print("Received event: " + json.dumps(event, indent=2))
+        sns_message = 'AWS Config Compliance Update\n\n Rule: ' \
+            + MY_RULE + '\n\n' \
+            + 'The following resource(s) are not compliant:\n' \
+            + non_complaint_resources
 
-    evaluation = evaluate_compliance(configuration_item, debug_enabled)
+        SNS_CLIENT.publish(TopicArn=SNS_TOPIC,
+                           Message=sns_message, Subject=SNS_SUBJECT)
 
-    config = boto3.client('config')
+        resource_type = result['EvaluationResultIdentifier']['EvaluationResultQualifier']['ResourceType']
 
-    response = config.put_evaluations(
-       Evaluations=[
-           {
-               'ComplianceResourceType': invoking_event['configurationItem']['resourceType'],
-               'ComplianceResourceId': invoking_event['configurationItem']['resourceId'],
-               'ComplianceType': evaluation["compliance_type"],
-               "Annotation": evaluation["annotation"],
-               'OrderingTimestamp': invoking_event['configurationItem']['configurationItemCaptureTime']
-           },
-       ],
-       ResultToken=event['resultToken'])
-       
- ```
+        if resource_type == 'AWS::EC2::SecurityGroup':
+            sg_id = result['EvaluationResultIdentifier']['EvaluationResultQualifier']['ResourceId']
+            sec_group = get_sec_group(sg_id)
+            if len(sec_group) > 0:
+                vpc_id = sec_group['SecurityGroups'][0]['VpcId']
+                remediate_sg('10.10.0.0/16', sg_id, vpc_id)
 
-## Part 5: Create a Custom Config Rule to Monitor Configuration Changes in Security Groups and Invoke Lambda.
-
-5.1. From the management console, open the AWS Config Console.
-
-5.2. In the management console, ensure that you are running AWS config in the **SAME REGION** in which you created the AWS Lambda function for your custom rule.
-
-5.3. On the **Rules** page, choose **Add Rule**
-
-5.4. On the **Add Rule** page, choose **Add Custom Rule**
-
-5.5. On the **Configure Rule** page, complete the following steps:
-
-* For **Name** enter **WebSGMonitorRule**
-* For **AWS Lambda function ARN**, specify the ARN of lambda function **WebSGAutoResponder** we created earlier
-* For **Trigger type**, choose **Configuration changes**. 
-* For **Scope of changes**, choose **Resources**. 
-* For **Resources**, choose **SecuityGroup**.
-* For Resource Identifier provide **group ID** of security group **WebServerSGDemo** we created earlier (e.g. sg-549654u6549ddd).
-* Select **Save**
+    else:
+        print('No noncompliant resources detected.')
 
 
+def get_sec_group(sg_id):
+    """Return the Security Group given a Security Group ID"""
+    sec_group = EC2_CLIENT.describe_security_groups(Filters=[{'Name': 'group-id', 'Values': [sg_id]}])
+    return sec_group
+
+
+def remediate_sg(ip, sg, vpc):
+    """Return EC2 SG object based on filters defined by provided VPCID/SGID"""
+    sgrules = EC2_CLIENT.describe_security_groups(Filters=[
+        {
+            'Name': 'vpc-id',
+            'Values': [vpc]
+        },
+        {
+            'Name': 'group-id',
+            'Values': [sg]
+        }
+    ]
+    )
+    r = remove_old_rule(sgrules, sg, ip)
+    if r is True:
+        sg_add_ingress(ip, sg)
+        return True
+    elif r is False:
+        return False
+
+
+def remove_old_rule(r, sg, ip):
+    """Remove any existing rules in the SG provided the current CIDR doesn't match"""
+    rules = r['SecurityGroups'][0]
+    if len(rules['IpPermissions']) > 0:
+        curr_ip = r['SecurityGroups'][0]['IpPermissions'][0]['IpRanges'][0]['CidrIp']
+        if str(ip) == str(curr_ip):
+            print('Public IP already exists')
+            return False
+        else:
+            EC2_CLIENT.revoke_security_group_ingress(GroupId=sg, IpPermissions=rules['IpPermissions'])
+            return True
+
+    else:
+        print('No security group rules for ' + sg)
+        return True
+
+
+def sg_add_ingress(pub_ip, sg):
+    """Add ingress rule for SSH TCP/22 to the designated SG"""
+    response = EC2_CLIENT.authorize_security_group_ingress(
+        GroupId=sg,
+        IpProtocol='tcp',
+        FromPort=22,
+        ToPort=22,
+        CidrIp=pub_ip
+    )
+    return response
+
+
+```
+
+## Part 8: Auto-Remediation Via Cloudwatch Rules
+
+8.1. Go to Cloudwatch Console
+8.2. To to Events/Rules in the left hand side tab.
+8.3. Select **Create Rule**
+8.3. Add the following:
+
+* Add the rule based on schedule.
+* Fix the schedule at 1 minute.
+* Add the lambda function as a target.
+
+Now click **Configure Rule**
+
+## Part 9 : Check that it works!
+
+9.1. Change the security group ssh settings to be open.
+9.2. 
