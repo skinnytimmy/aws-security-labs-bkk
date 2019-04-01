@@ -52,14 +52,28 @@ We will be simulating Config Rule checks on the following environment:
 ## Part 3: Set up the recorder
 
 3.1. Go through and set up the recorder, according to the defaults.
+
 3.2. Ensure that the role that you created in (1) is included at the bottom of the page.
+
 
 
 ## Part 4: Add the unrestricted SSH rule within AWS Config
 
+4.1. From the management console, go to AWS Config.
+
+4.2. From the Rules section on the left hand pane, click **Add Rule**.
+
+4.3. Filter the rules by the keyword **ssh**.
+
+4.4. Select the prebuilt rule **restricted-ssh**.
+
+4.5. Select **save** to save your rule.
+
+
 ## Part 5: Create an SNS Topic 
 
 5.1 Call the topic **ConfigTopic**.
+
 5.2 Subscribe your email address and acknowledge when the confirmation mail arrives.
 
 
@@ -125,7 +139,7 @@ EC2_CLIENT = boto3.client('ec2')
 
 # AWS SNS Settings
 SNS_CLIENT = boto3.client('sns')
-SNS_TOPIC = 'arn:aws:sns:us-east-1:' + ACCOUNT_ID + ':' + 'mytopic'
+SNS_TOPIC = 'arn:aws:sns:us-east-1:' + ACCOUNT_ID + ':' + 'ConfigRule'
 SNS_SUBJECT = 'Compliance Update'
 
 
@@ -228,18 +242,32 @@ def sg_add_ingress(pub_ip, sg):
 
 ## Part 8: Auto-Remediation Via Cloudwatch Rules
 
-8.1. Go to Cloudwatch Console
+8.1. Go to Cloudwatch Console.
+
 8.2. To to Events/Rules in the left hand side tab.
+
 8.3. Select **Create Rule**
+
 8.3. Add the following:
 
 * Add the rule based on schedule.
 * Fix the schedule at 1 minute.
 * Add the lambda function as a target.
 
-Now click **Configure Rule**
+8.4. Now click **Configure Rule**
+
+
 
 ## Part 9 : Check that it works!
 
 9.1. Change the security group ssh settings to be open.
-9.2. 
+
+9.2. You should see the config rule change compliance status.
+
+9.3. This should trigger the lambda remediation via CloudWatch Rules.
+
+9.4. The Lambda code should lock down your open rule to the IP subrange of the on-premise DC listed above.
+
+
+
+
