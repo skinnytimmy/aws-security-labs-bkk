@@ -13,7 +13,9 @@ This could potentially be used to ensure that a production web server security g
 
 We will be simulating Config Rule checks on the following environment:
 
-![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/CustomConfigRule-Automation/images/image1-1.png )
+![alt text](https://github.com/skinnytimmy/aws-security-labs-bkk/blob/master/Module-5/Security-Automation/CustomConfigRule-Automation/images/image1-1.png )
+
+
 
 
 
