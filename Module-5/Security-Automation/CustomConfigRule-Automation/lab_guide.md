@@ -139,7 +139,7 @@ EC2_CLIENT = boto3.client('ec2')
 
 # AWS SNS Settings
 SNS_CLIENT = boto3.client('sns')
-SNS_TOPIC = 'arn:aws:sns:us-east-1:' + ACCOUNT_ID + ':' + 'ConfigRule'
+SNS_TOPIC = 'arn:aws:sns:us-east-1:' + ACCOUNT_ID + ':' + 'ConfigTopic'
 SNS_SUBJECT = 'Compliance Update'
 
 
